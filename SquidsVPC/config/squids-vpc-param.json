@@ -1,0 +1,18 @@
+[
+    {
+    "ParameterKey":"EnvironmentName",
+    "ParameterValue":"SquidsVPC"
+    },
+    {
+        "ParameterKey":"SSHAccessCIDR",
+        "ParameterValue":"0.0.0.0/0"
+    },
+    {
+        "ParameterKey":"ProjectTag",
+        "ParameterValue":"Squids"
+    },
+    {
+        "ParameterKey":"CostRunTag",
+        "ParameterValue":"NoTag"
+    }
+]

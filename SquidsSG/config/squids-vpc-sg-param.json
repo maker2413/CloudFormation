@@ -1,0 +1,19 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "devel-vpc"
+    },
+    {
+        "ParameterKey": "VPC",
+        "ParameterValue": "vpc-04836d8ffae8ee7dc"
+    },
+    {
+        "ParameterKey": "PullFromVPC",
+        "ParameterValue": "True"
+    },
+    {
+        "ParameterKey": "VPCStackNameParameter",
+        "ParameterValue": "devel-vpc"
+    }
+]
+
