@@ -1,6 +1,6 @@
 {
     "Resources": {
-        "SquidsEC2" : {
+        "SquidsEC2Role" : {
             "Type" : "AWS::IAM::Role",
             "Properties" : {
                 "AssumeRolePolicyDocument": {
@@ -20,13 +20,13 @@
                     ]
                 },
                 "Path": "/",
-                "RoleName" : "SquidsEC2"
+                "RoleName" : "SquidsEC2Role"
             },
         },
         "SquidsEC2Policy" : {
-            "Type" : "AWS::IAM::Policy",
+            "Type" : "AWS::IAM::ManagedPolicy",
             "Properties" : {
-                "PolicyName" : "SquidsEC2Policy",
+                "ManagedPolicyName" : "SquidsEC2Policy",
                 "PolicyDocument" : {
                     "Version" : "2012-10-17",
                     "Statement": [
@@ -115,8 +115,64 @@
                         }
                     ]
                 },
-                "Roles" : [ { "Ref" : "SquidsEC2" } ]
-            }
+                "Path" : "/",
+                "Roles" : [ { "Ref" : "SquidsEC2Role" } ]
+            },
+        },
+        "SquidsIAMPolicy" : {
+            "Type" : "AWS::IAM::ManagedPolicy",
+            "Properties" : {
+                "ManagedPolicyName" : "SquidsIAMPolicy",
+                "PolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "VisualEditor0",
+                            "Effect": "Allow",
+                            "Action": [
+                                "iam:CreatePolicy",
+                                "iam:GetRole",
+                                "iam:CreateRole",
+                                "iam:PutRolePolicy"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Path" : "/",
+                "Roles" : [ { "Ref" : "SquidsEC2Role" } ]
+            },
+        },
+        "SquidsCFTPolicy" : {
+            "Type" : "AWS::IAM::ManagedPolicy",
+            "Properties" : {
+                "ManagedPolicyName" : "SquidsCFTPolicy",
+                "PolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "VisualEditor0",
+                            "Effect": "Allow",
+                            "Action": [
+                                "cloudformation:ListStacks",
+                                "cloudformation:CreateStack",
+                                "cloudformation:UpdateStack"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Path" : "/",
+                "Roles" : [ { "Ref" : "SquidsEC2Role" } ]
+            },
+        },
+        "SquidsInstanceProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "InstanceProfileName" : "SquidsEC2Role",
+                "Path" : "/",
+                "Roles" : [ { "Ref" : "SquidsEC2Role" } ]
+            },
         }
     }
 }
