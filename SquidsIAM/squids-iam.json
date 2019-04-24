@@ -1,19 +1,19 @@
 {
-    "Resources": {
+    "Resources" : {
         "SquidsEC2Role" : {
             "Type" : "AWS::IAM::Role",
             "Properties" : {
                 "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
+                    "Version" : "2012-10-17",
+                    "Statement" : [
                         {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": [
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : [
                                     "ec2.amazonaws.com"
                                 ]
                             },
-                            "Action": [
+                            "Action" : [
                                 "sts:AssumeRole"
                             ]
                         }
@@ -22,7 +22,7 @@
                 "ManagedPolicyArns" : [
                     "arn:aws:iam::aws:policy/ReadOnlyAccess"
                 ],
-                "Path": "/",
+                "Path" : "/",
                 "RoleName" : "SquidsEC2Role"
             }
         },
@@ -32,17 +32,16 @@
                 "ManagedPolicyName" : "SquidsEC2Policy",
                 "PolicyDocument" : {
                     "Version" : "2012-10-17",
-                    "Statement": [
+                    "Statement" : [
                         {
-                            "Action": [
+                            "Action" : [
                                 "autoscaling:*"
                             ],
-                            "Resource": "*",
-                            "Effect": "Allow",
-                            "Sid": "Ec2AutoScaleAllowDeveloper"
-                        },
-                        {
-                            "Action": [
+                            "Resource" : "*",
+                            "Effect" : "Allow",
+                            "Sid" : "Ec2AutoScaleAllowDeveloper"
+                        }, {
+                            "Action" : [
                                 "ec2:AllocateAddress",
                                 "ec2:AllocateHosts",
                                 "ec2:AssignIpv6Addresses",
@@ -136,9 +135,9 @@
                                 "ec2:UnassignPrivateIpAddresses",
                                 "ec2:UnmonitorInstances"
                             ],
-                            "Resource": "*",
-                            "Effect": "Allow",
-                            "Sid": "EC2AllowDeveloper"
+                            "Resource" : "*",
+                            "Effect" : "Allow",
+                            "Sid" : "EC2AllowDeveloper"
                         }
                     ]
                 },
@@ -151,19 +150,19 @@
             "Properties" : {
                 "ManagedPolicyName" : "SquidsIAMPolicy",
                 "PolicyDocument" : {
-                    "Version": "2012-10-17",
-                    "Statement": [
+                    "Version" : "2012-10-17",
+                    "Statement" : [
                         {
-                            "Sid": "VisualEditor0",
-                            "Effect": "Allow",
-                            "Action": [
+                            "Sid" : "VisualEditor0",
+                            "Effect" : "Allow",
+                            "Action" : [
                                 "iam:CreatePolicy",
                                 "iam:GetRole",
                                 "iam:PassRole",
                                 "iam:CreateRole",
                                 "iam:PutRolePolicy"
                             ],
-                            "Resource": "*"
+                            "Resource" : "*"
                         }
                     ]
                 },
@@ -176,17 +175,17 @@
             "Properties" : {
                 "ManagedPolicyName" : "SquidsCFTPolicy",
                 "PolicyDocument" : {
-                    "Version": "2012-10-17",
-                    "Statement": [
+                    "Version" : "2012-10-17",
+                    "Statement" : [
                         {
-                            "Sid": "VisualEditor0",
-                            "Effect": "Allow",
-                            "Action": [
+                            "Sid" : "VisualEditor0",
+                            "Effect" : "Allow",
+                            "Action" : [
                                 "cloudformation:ListStacks",
                                 "cloudformation:CreateStack",
                                 "cloudformation:UpdateStack"
                             ],
-                            "Resource": "*"
+                            "Resource" : "*"
                         }
                     ]
                 },
@@ -199,12 +198,12 @@
             "Properties" : {
                 "ManagedPolicyName" : "SquidsS3Policy",
                 "PolicyDocument" : {
-                    "Version": "2012-10-17",
-                    "Statement": [
+                    "Version" : "2012-10-17",
+                    "Statement" : [
                         {
-                            "Sid": "VisualEditor0",
-                            "Effect": "Allow",
-                            "Action": [
+                            "Sid" : "VisualEditor0",
+                            "Effect" : "Allow",
+                            "Action" : [
                                 "s3:AbortMultipartUpload",
                                 "s3:CreateBucket",
                                 "s3:DeleteBucket",
@@ -266,9 +265,9 @@
                                 "s3:ReplicateTags",
                                 "s3:RestoreObject"
                             ],
-                            "Resource": "*",
-                            "Effect": "Allow",
-                            "Sid": "S3AllowDeveloper"
+                            "Resource" : "*",
+                            "Effect" : "Allow",
+                            "Sid" : "S3AllowDeveloper"
                         }
                     ]
                 },
@@ -281,17 +280,17 @@
             "Properties" : {
                 "ManagedPolicyName" : "SquidsEFSPolicy",
                 "PolicyDocument" : {
-                    "Version": "2012-10-17",
-                    "Statement": [
+                    "Version" : "2012-10-17",
+                    "Statement" : [
                         {
-                            "Sid": "VisualEditor0",
-                            "Effect": "Allow",
-                            "Action": [
+                            "Sid" : "VisualEditor0",
+                            "Effect" : "Allow",
+                            "Action" : [
                                 "elasticfilesystem:DescribeMountTargets",
                                 "elasticfilesystem:CreateMountTarget",
                                 "elasticfilesystem:DescribeFileSystems"
                             ],
-                            "Resource": "*"
+                            "Resource" : "*"
                         }
                     ]
                 },
