@@ -36,12 +36,6 @@
     "Conditions" : {
         "PullFromVPCCond" : {"Fn::Equals" : [{"Ref" : "PullFromVPC"}, "True"]}
     },
-    "Mappings" : {
-        "CIDRbyName" : {
-            "EthanIP"  : { "CIDR" : [{ "Fn::Sub" : "${EthanIP}"  }], "DESC" : "EthanIP" },
-            "DustinIP" : { "CIDR" : [{ "Fn::Sub" : "${DustinIP}" }], "DESC" : "DustinIP"}
-        }
-    },
     "Resources" : {
         "SSHClient" : {
             "Type" : "AWS::EC2::SecurityGroup",
@@ -101,21 +95,17 @@
                     {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "CIDR"]
+                            "Fn::Sub" : "${EthanIP}"
                         },
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "DESC"]
-                        },
+                        "Description" : "EthanIP",
                         "FromPort" : "22",
                         "ToPort" : "22"
                     }, {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "CIDR"]
+                            "Fn::Sub" : "${DustinIP}"
                         }, 
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "DESC"]
-                        },
+                        "Description" : "DustinIP",
                         "FromPort" : "22",
                         "ToPort" : "22"
                     }, {
@@ -334,41 +324,33 @@
                     {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "CIDR"]
+                            "Fn::Sub" : "${EthanIP}"
                         },
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "DESC"]
-                        },
+                        "Description" : "EthanIP",
                         "FromPort" : "8080",
                         "ToPort" : "8080"
                     }, {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "CIDR"]
+                            "Fn::Sub" : "${DustinIP}"
                         },
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "DESC"]
-                        },
+                        "Description" : "DustinIP",
                         "FromPort" : "8080",
                         "ToPort" : "8080"
                     }, {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "CIDR"]
+                            "Fn::Sub" : "${EthanIP}"
                         },
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "EthanIP", "DESC"]
-                        },
+                        "Description" : "EthanIP",
                         "FromPort" : "8443",
                         "ToPort" : "8443"
                     }, {
                         "IpProtocol" : "tcp",
                         "CidrIp" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "CIDR"]
+                            "Fn::Sub" : "${DustinIP}"
                         },
-                        "Description" : {
-                            "Fn::FindInMap" : ["CIDRbyName", "DustinIP", "DESC"]
-                        },
+                        "Description" : "DustinIP",
                         "FromPort" : "8443",
                         "ToPort" : "8443"
                     }, {

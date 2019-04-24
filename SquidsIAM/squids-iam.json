@@ -128,6 +128,8 @@
                                 "ec2:ResetInstanceAttribute",
                                 "ec2:ResetNetworkInterfaceAttribute",
                                 "ec2:ResetSnapshotAttribute",
+                                "ec2:RevokeSecurityGroupEgress",
+                                "ec2:RevokeSecurityGroupIngress",
                                 "ec2:RunInstances",
                                 "ec2:StartInstances",
                                 "ec2:StopInstances",
