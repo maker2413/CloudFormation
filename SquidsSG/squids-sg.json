@@ -17,7 +17,7 @@
         },
         "PullFromVPC" : {
             "Type" : "String",
-            "Description" : "True/False - pull Subnets and tags from the VPC (used in automation, defaults to False)",
+            "Description" : "True/False  pull Subnets and tags from the VPC (used in automation, defaults to False)",
             "Default" : "False"
         },
         "VPCStackNameParameter" : {
@@ -38,12 +38,12 @@
     },
     "Mappings" : {
         "CIDRbyName" : {
-            "EthanIP"  : { "CIDR" : [{ "Fn::Sub" : "${EthanIP}"  }], "DESC" : "EthanIP" }
+            "EthanIP"  : { "CIDR" : [{ "Fn::Sub" : "${EthanIP}"  }], "DESC" : "EthanIP" },
             "DustinIP" : { "CIDR" : [{ "Fn::Sub" : "${DustinIP}" }], "DESC" : "DustinIP"}
         }
     },
     "Resources" : {
-        "SSH-Client" : {
+        "SSHClient" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Outbound SSH Access",
@@ -58,11 +58,11 @@
                         }
                     ]
                 },
-                "SecurityGroupEgres" : [
+                "SecurityGroupEgress" : [
                     {
                         "IpProtocol" : "-1",
                         "CidrIp" : "0.0.0.0/0",
-                        "Description" : "Outbound Access"
+                        "Description" : "Outbound Access",
                         "FromPort" : "-1",
                         "ToPort" : "-1"
                     }
@@ -81,8 +81,8 @@
                     }
                 ]
             }
-        }
-    	"SSH-Server" : {
+        },
+    	"SSHServer" : {
     		"Type" : "AWS::EC2::SecurityGroup",
     		"Properties" : {
                 "GroupDescription" : "Inbound SSH Access",
@@ -121,11 +121,11 @@
                     }, {
                         "IpProtocol" : "tcp",
                         "SourceSecurityGroupId" : {
-                            "Ref" : "SSH-Client"
+                            "Ref" : "SSHClient"
                         },
                         "Description" : {
                             "Fn::Sub" : "${EnvironmentName}-SSH-Client"
-                        }
+                        },
                         "FromPort" : "22",
                         "ToPort" : "22"
                     }
@@ -145,7 +145,7 @@
                 ]
     		}
         },
-        "EFS-Client" : {
+        "EFSClient" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Outbound EFS Access",
@@ -160,11 +160,11 @@
                         }
                     ]
                 },
-                "SecurityGroupEgres" : [
+                "SecurityGroupEgress" : [
                     {
                         "IpProtocol" : "-1",
                         "CidrIp" : "0.0.0.0/0",
-                        "Description" : "Outbound Access"
+                        "Description" : "Outbound Access",
                         "FromPort" : "-1",
                         "ToPort" : "-1"
                     }
@@ -184,13 +184,13 @@
                 ]
             }
         },
-        "EFS-Server" : {
+        "EFSServer" : {
     		"Type" : "AWS::EC2::SecurityGroup",
     		"Properties" : {
                 "GroupDescription" : "Inbound EFS Access",
     			"VpcId" : {
                     "Fn::If" : [
-                        "PullFromVPCCond" : {
+                        "PullFromVPCCond", {
                             "Fn::ImportValue" : {
                                 "Fn::Sub" : "${VPCStackNameParameter}"
                             }
@@ -203,7 +203,7 @@
                     {
                         "IpProtocol" : "tcp",
                         "SourceSecurityGroupId" : {
-                            "Ref" : "EFS-Client"
+                            "Ref" : "EFSClient"
                         },
                         "Description" : {
                             "Fn::Sub" : "${EnvironmentName}-EFS-Client"
@@ -227,13 +227,13 @@
                 ]
     		}
     	},
-        "Web-Server" : {
+        "WebServer" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Inbound HTTP and HTTPs Access",
                 "VpcId" : {
                     "Fn::If" : [
-                        "PullFromVPCCond" : {
+                        "PullFromVPCCond", {
                             "Fn::ImportValue" : {
                                 "Fn::Sub" : "${VPCStackNameParameter}"
                             }
@@ -245,7 +245,7 @@
                 "SecurityGroupIngress" : [
                     {
                         "IpProtocol" : "tcp",
-                        "CidrIp" : "0.0.0.0/0"
+                        "CidrIp" : "0.0.0.0/0",
                         "Description" : {
                             "Fn::Sub" : "HTTP from all of the Internet"
                         },
@@ -253,7 +253,7 @@
                         "ToPort" : "80"
                     }, {
                         "IpProtocol" : "tcp",
-                        "CidrIp" : "0.0.0.0/0"
+                        "CidrIp" : "0.0.0.0/0",
                         "Description" : {
                             "Fn::Sub" : "HTTPs from all of the Internet"
                         },
@@ -276,7 +276,7 @@
                 ]
             }
         },
-        "Jenkins-Client" : {
+        "JenkinsClient" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Outbound EFS Access",
@@ -291,11 +291,11 @@
                         }
                     ]
                 },
-                "SecurityGroupEgres" : [
+                "SecurityGroupEgress" : [
                     {
                         "IpProtocol" : "-1",
                         "CidrIp" : "0.0.0.0/0",
-                        "Description" : "Outbound Access"
+                        "Description" : "Outbound Access",
                         "FromPort" : "-1",
                         "ToPort" : "-1"
                     }
@@ -315,13 +315,13 @@
                 ]
             }
         },
-        "Jenkins-Server" : {
+        "JenkinsServer" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Inbound HTTP and HTTPs Access",
                 "VpcId" : {
                     "Fn::If" : [
-                        "PullFromVPCCond" : {
+                        "PullFromVPCCond", {
                             "Fn::ImportValue" : {
                                 "Fn::Sub" : "${VPCStackNameParameter}"
                             }
@@ -374,21 +374,21 @@
                     }, {
                         "IpProtocol" : "tcp",
                         "SourceSecurityGroupId" : {
-                            "Ref" : "Jenkins-Client"
+                            "Ref" : "JenkinsClient"
                         },
                         "Description" : {
                             "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
-                        }
+                        },
                         "FromPort" : "8080",
                         "ToPort" : "8080"
                     }, {
                         "IpProtocol" : "tcp",
                         "SourceSecurityGroupId" : {
-                            "Ref" : "Jenkins-Client"
+                            "Ref" : "JenkinsClient"
                         },
                         "Description" : {
                             "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
-                        }
+                        },
                         "FromPort" : "8443",
                         "ToPort" : "8443"
                     }
@@ -410,46 +410,46 @@
         }
     },
     "Outputs" : {
-        "SSH-Client" : {
-            "Description" : "Security Group SSH-Client ID",
+        "SSHClient" : {
+            "Description" : "Security Group SSHClient ID",
             "Value" : {
-                "Ref" : "SSH-Client"
+                "Ref" : "SSHClient"
             }
         },
-        "SSH-Server" : {
-            "Description" : "Security Group SSH-Server ID",
+        "SSHServer" : {
+            "Description" : "Security Group SSHServer ID",
             "Value" : {
-                "Ref" : "SSH-Server"
+                "Ref" : "SSHServer"
             }
         },
-        "EFS-Client" : {
-            "Description" : "Security Group SSH-Client ID",
+        "EFSClient" : {
+            "Description" : "Security Group SSHClient ID",
             "Value" : {
-                "Ref" : "SSH-Client"
+                "Ref" : "SSHClient"
             }
         },
-        "EFS-Client" : {
-            "Description" : "Security Group SSH-Client ID",
+        "EFSClient" : {
+            "Description" : "Security Group SSHClient ID",
             "Value" : {
-                "Ref" : "SSH-Client"
+                "Ref" : "SSHClient"
             }
         },
-        "Web-Server" : {
-            "Description" : "Security Group Web-Server ID",
+        "WebServer" : {
+            "Description" : "Security Group WebServer ID",
             "Value" : {
-                "Ref" : "Web-Server"
+                "Ref" : "WebServer"
             }
         },
-        "Jenkins-Client" : {
-            "Description" : "Security Group Jenkins-Client ID",
+        "JenkinsClient" : {
+            "Description" : "Security Group JenkinsClient ID",
             "Value" : {
-                "Ref" : "Jenkins-Client"
+                "Ref" : "JenkinsClient"
             }
         },
-        "Jenkins-Server" : {
-            "Description" : "Security Group Jenkins-Server ID",
+        "JenkinsServer" : {
+            "Description" : "Security Group JenkinsServer ID",
             "Value" : {
-                "Ref" : "Jenkins-Server"
+                "Ref" : "JenkinsServer"
             }
         }
     }
