@@ -1,1 +1,1543 @@
-
+{
+    "Description": "This template deploys necessary security groups to the specified VPC",
+    "Parameters": {
+        "EnvironmentName": {
+            "Description": "An environment name that will be prefixed to resource names",
+            "Type": "String",
+            "Default": "dev"
+        },
+        "VPC": {
+            "Description": "The VPC to deploy SG's into, ignored if PullFromVPC is True",
+            "Type": "String"
+        },
+        "ProjectTag": {
+            "Type": "String",
+            "Description": "The project tag for stack resources",
+            "Default": "Squids"
+        },
+        "PullFromVPC": {
+            "Type": "String",
+            "Description": "True/False - pull Subnets and tags from the VPC (used in automation, defaults to False)",
+            "Default": "False"
+        },
+        "VPCStackNameParameter": {
+            "Type": "String",
+            "Description": "The name of the VPC stack, only required if PullFromVPC is specified"
+        }
+    },
+    "Conditions" : {
+        "PullFromVPCCond" : {"Fn::Equals" : [{"Ref" : "PullFromVPC"}, "True"]}
+    },
+    "Mappings" : {
+        "CIDRbyName" : {
+            "Valhalla" : { "CIDR" : "208.107.75.105", "DESC" : "Valhalla"}
+        }
+    },
+    "Resources" : {
+    	"sgSquidsDev-SSH-Inbound" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Basic ssh and icmp access group",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                        },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                        },
+                        "FromPort" : "22",
+                        "ToPort" : "22"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                        }, 
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                        },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                        "FromPort" : "22",
+                        "ToPort" : "22"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                      "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "Name",
+                      "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"SquidsDev-SSHInbounc"]]}
+                    }
+                ]
+    		}
+        },
+        "DBAccess" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Allows access to various database ports",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          }, 
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          }, 
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                          },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                          },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                    "IpProtocol" : "icmp",
+                    "CidrIp" : {
+                        "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                        },
+                        "Description" : {
+                        "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                        },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                        "FromPort" : "5500",
+                        "ToPort" : "5500"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                        "FromPort" : "1521",
+                        "ToPort" : "1521"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                        "FromPort" : "5432",
+                        "ToPort" : "5432"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"db-access"]]}
+                    }
+                ]
+    		}
+    	},
+        "efsAccess" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Allows access to EFS via NFS port, SG is applied to EFS mount",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                            "FromPort" : "2049",
+                            "ToPort" : "2049"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"efs-access"]]}
+                    }
+                ]
+    		}
+    	},
+        "jenkinsSlaveAccess" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Allows access to jenkins slaves",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                            },
+                            "FromPort" : "0",
+                            "ToPort" : "65535"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"jenkins-slave-access"]]}
+                    }
+                ]
+    		}
+    	},
+        "webPortAccess" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Allows access on http, https ports, as well as icmp",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "CIDR"]
+                          }, 
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSWired", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSCorndogNetwork", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "CIDR"]
+                          }, 
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSGuest", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNVA", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCO", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNSD", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSVPNCA", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "ZealWifi", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "ZealWifi", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "ZealWifi", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "ZealWifi", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "AnalystsEdina", "DESC"]
+                          },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                          },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                          },
+                          "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                          },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                    "IpProtocol" : "icmp",
+                    "CidrIp" : {
+                        "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "CIDR"]
+                        },
+                        "Description" : {
+                        "Fn::FindInMap" : ["CIDRbyName", "JenkinsMaster", "DESC"]
+                        },
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "dtonkin", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "rcattelan", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "pmartin", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan2", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan2", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan2", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan2", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan3", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan3", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan3", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "cmahan3", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    },
+                    {
+                        "IpProtocol" : "icmp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                            },
+                            "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                            },
+                            "FromPort" : "-1",
+                            "ToPort" : "-1"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"web-port-access"]]}
+                    }
+                ]
+    		}
+    	},
+        "ELKLoadBalance" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Connects two elasticsearch ec2 instances",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "EROSTrusted", "DESC"]
+                          },
+                        "FromPort" : "9200",
+                        "ToPort" : "9200"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"ELK-load-balancer-public"]]}
+                    }
+                ]
+    		}
+    	},
+        "ELKPrivateServer" : 
+    	{
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : 
+    		{
+                "GroupDescription" : "Private server group for ELK stack",
+    			"VpcId": {
+                    "Fn::If": [
+                        "PullFromVPCCond",
+                        {
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${VPCStackNameParameter}-vpc"
+                            }
+                        },
+                        {
+                            "Ref": "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "CIDR"]
+                          },
+                        "Description" : {
+                            "Fn::FindInMap" : ["CIDRbyName", "VPCLocal", "DESC"]
+                          },
+                        "FromPort" : "9200",
+                        "ToPort" : "9200"
+                    }
+                    ],
+                "Tags": [
+                    { "Key" : "Project",
+                        "Value" : {"Ref": "ProjectTag"}
+                    },
+                    { "Key" : "CostRun",
+                        "Value" : {"Ref": "CostRunTag"}
+                    },
+                    { "Key" : "Name",
+                        "Value" : {"Fn::Join": ["-",[{"Ref": "AWS::StackName"},"ELK-private-server"]]}
+                    }
+                ]
+    		}
+    	}
+    },
+    "Outputs" : {
+        "SGDbasicsshicmp" :
+        {
+            "Description" : "Security Group basic-ssh-icmp ID",
+            "Value" : { "Ref" : "basicAccessSshIcmp" }
+        },
+        "SGDbaccess" :
+        {
+            "Description" : "Security Group db-access ID",
+            "Value" : { "Ref" : "DBAccess" }
+        },
+        "SGefsAccess" :
+        {
+            "Description" : "Security Group efs-access ID",
+            "Value" : { "Ref" : "efsAccess" }
+        },
+        "SGjenkinsSlaveAccess" :
+        {
+            "Description" : "Security Group jenksins-slave-access ID",
+            "Value" : { "Ref" : "jenkinsSlaveAccess" }
+        },
+        "SGwebPortAccess" :
+        {
+            "Description" : "Security Group web-port-access ID",
+            "Value" : { "Ref" : "webPortAccess" }
+        }
+    }
+}

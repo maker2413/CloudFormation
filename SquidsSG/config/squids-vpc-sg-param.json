@@ -1,11 +1,11 @@
 [
     {
         "ParameterKey": "EnvironmentName",
-        "ParameterValue": "devel-vpc"
+        "ParameterValue": "SquidsVPC"
     },
     {
         "ParameterKey": "VPC",
-        "ParameterValue": "vpc-04836d8ffae8ee7dc"
+        "ParameterValue": "vpc-08ad932f21da28376"
     },
     {
         "ParameterKey": "PullFromVPC",
@@ -13,7 +13,7 @@
     },
     {
         "ParameterKey": "VPCStackNameParameter",
-        "ParameterValue": "devel-vpc"
+        "ParameterValue": "SquidsVPC"
     }
 ]
 

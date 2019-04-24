@@ -10,9 +10,5 @@
     {
         "ParameterKey":"ProjectTag",
         "ParameterValue":"Squids"
-    },
-    {
-        "ParameterKey":"CostRunTag",
-        "ParameterValue":"NoTag"
     }
 ]
