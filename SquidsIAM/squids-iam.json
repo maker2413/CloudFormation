@@ -35,13 +35,6 @@
                     "Statement" : [
                         {
                             "Action" : [
-                                "autoscaling:*"
-                            ],
-                            "Resource" : "*",
-                            "Effect" : "Allow",
-                            "Sid" : "Ec2AutoScaleAllowDeveloper"
-                        }, {
-                            "Action" : [
                                 "ec2:AllocateAddress",
                                 "ec2:AllocateHosts",
                                 "ec2:AssignIpv6Addresses",
