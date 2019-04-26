@@ -1,0 +1,438 @@
+{
+    "Description" : "This template deploys necessary security groups to the specified VPC",
+    "Parameters" : {
+        "EnvironmentName" : {
+            "Description" : "An environment name that will be prefixed to resource names",
+            "Type" : "String",
+            "Default" : "dev"
+        },
+        "VPC" : {
+            "Description" : "The VPC to deploy SG's into, ignored if PullFromVPC is True",
+            "Type" : "String"
+        },
+        "ProjectTag" : {
+            "Type" : "String",
+            "Description" : "The project tag for stack resources",
+            "Default" : "Squids"
+        },
+        "PullFromVPC" : {
+            "Type" : "String",
+            "Description" : "True/False  pull Subnets and tags from the VPC (used in automation, defaults to False)",
+            "Default" : "False"
+        },
+        "VPCStackNameParameter" : {
+            "Type" : "String",
+            "Description" : "The name of the VPC stack, only required if PullFromVPC is specified"
+        },
+        "EthanIP" : {
+            "Type" : "String",
+            "Description" : "The IP of the developer"
+        },
+        "DustinIP" : {
+            "Type" : "String",
+            "Description" : "The IP of the developer"
+        }
+    },
+    "Conditions" : {
+        "PullFromVPCCond" : {"Fn::Equals" : [{"Ref" : "PullFromVPC"}, "True"]}
+    },
+    "Resources" : {
+        "SSHClient" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Outbound SSH Access",
+                "VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "CidrIp" : "0.0.0.0/0",
+                        "Description" : "Outbound Access",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    }
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-SSH-Client"
+                        }
+                    }
+                ]
+            }
+        },
+    	"SSHServer" : {
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : {
+                "GroupDescription" : "Inbound SSH Access",
+    			"VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${EthanIP}"
+                        },
+                        "Description" : "EthanIP",
+                        "FromPort" : "22",
+                        "ToPort" : "22"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${DustinIP}"
+                        }, 
+                        "Description" : "DustinIP",
+                        "FromPort" : "22",
+                        "ToPort" : "22"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "SourceSecurityGroupId" : {
+                            "Ref" : "SSHClient"
+                        },
+                        "Description" : {
+                            "Fn::Sub" : "${EnvironmentName}-SSH-Client"
+                        },
+                        "FromPort" : "22",
+                        "ToPort" : "22"
+                    }
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-SSH-Server"
+                        }
+                    }
+                ]
+    		}
+        },
+        "EFSClient" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Outbound EFS Access",
+                "VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "CidrIp" : "0.0.0.0/0",
+                        "Description" : "Outbound Access",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    }
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-EFS-Client"
+                        }
+                    }
+                ]
+            }
+        },
+        "EFSServer" : {
+    		"Type" : "AWS::EC2::SecurityGroup",
+    		"Properties" : {
+                "GroupDescription" : "Inbound EFS Access",
+    			"VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "SourceSecurityGroupId" : {
+                            "Ref" : "EFSClient"
+                        },
+                        "Description" : {
+                            "Fn::Sub" : "${EnvironmentName}-EFS-Client"
+                        },
+                        "FromPort" : "2049",
+                        "ToPort" : "2049"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref": "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-EFS-Server"
+                        }
+                    }
+                ]
+    		}
+    	},
+        "WebServer" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Inbound HTTP and HTTPs Access",
+                "VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : "0.0.0.0/0",
+                        "Description" : {
+                            "Fn::Sub" : "HTTP from all of the Internet"
+                        },
+                        "FromPort" : "80",
+                        "ToPort" : "80"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : "0.0.0.0/0",
+                        "Description" : {
+                            "Fn::Sub" : "HTTPs from all of the Internet"
+                        },
+                        "FromPort" : "443",
+                        "ToPort" : "443"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref": "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-Web-Server"
+                        }
+                    }
+                ]
+            }
+        },
+        "JenkinsClient" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Outbound EFS Access",
+                "VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "CidrIp" : "0.0.0.0/0",
+                        "Description" : "Outbound Access",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1"
+                    }
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
+                        }
+                    }
+                ]
+            }
+        },
+        "JenkinsServer" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Inbound HTTP and HTTPs Access",
+                "VpcId" : {
+                    "Fn::If" : [
+                        "PullFromVPCCond", {
+                            "Fn::ImportValue" : {
+                                "Fn::Sub" : "${VPCStackNameParameter}"
+                            }
+                        }, {
+                            "Ref" : "VPC"
+                        }
+                    ]
+                },
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${EthanIP}"
+                        },
+                        "Description" : "EthanIP",
+                        "FromPort" : "8080",
+                        "ToPort" : "8080"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${DustinIP}"
+                        },
+                        "Description" : "DustinIP",
+                        "FromPort" : "8080",
+                        "ToPort" : "8080"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${EthanIP}"
+                        },
+                        "Description" : "EthanIP",
+                        "FromPort" : "8443",
+                        "ToPort" : "8443"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "CidrIp" : {
+                            "Fn::Sub" : "${DustinIP}"
+                        },
+                        "Description" : "DustinIP",
+                        "FromPort" : "8443",
+                        "ToPort" : "8443"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "SourceSecurityGroupId" : {
+                            "Ref" : "JenkinsClient"
+                        },
+                        "Description" : {
+                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
+                        },
+                        "FromPort" : "8080",
+                        "ToPort" : "8080"
+                    }, {
+                        "IpProtocol" : "tcp",
+                        "SourceSecurityGroupId" : {
+                            "Ref" : "JenkinsClient"
+                        },
+                        "Description" : {
+                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
+                        },
+                        "FromPort" : "8443",
+                        "ToPort" : "8443"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref": "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Server"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+        "SSHClient" : {
+            "Description" : "Security Group SSHClient ID",
+            "Value" : {
+                "Ref" : "SSHClient"
+            }
+        },
+        "SSHServer" : {
+            "Description" : "Security Group SSHServer ID",
+            "Value" : {
+                "Ref" : "SSHServer"
+            }
+        },
+        "EFSClient" : {
+            "Description" : "Security Group SSHClient ID",
+            "Value" : {
+                "Ref" : "SSHClient"
+            }
+        },
+        "EFSClient" : {
+            "Description" : "Security Group SSHClient ID",
+            "Value" : {
+                "Ref" : "SSHClient"
+            }
+        },
+        "WebServer" : {
+            "Description" : "Security Group WebServer ID",
+            "Value" : {
+                "Ref" : "WebServer"
+            }
+        },
+        "JenkinsClient" : {
+            "Description" : "Security Group JenkinsClient ID",
+            "Value" : {
+                "Ref" : "JenkinsClient"
+            }
+        },
+        "JenkinsServer" : {
+            "Description" : "Security Group JenkinsServer ID",
+            "Value" : {
+                "Ref" : "JenkinsServer"
+            }
+        }
+    }
+}
