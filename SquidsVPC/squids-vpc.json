@@ -5,11 +5,6 @@
             "Description" : "An environment name that will be prefixed to resource names",
             "Type" : "String"
         },
-        "SSHAccessCIDR" : {
-            "Description" : "CIDR block for SSH access to public subnet",
-            "Type" : "String",
-            "Default" : "0.0.0.0/0"
-        },
         "ProjectTag" : {
             "Description" : "A project tag for consolidation in reporting",
             "Type" : "String",
@@ -18,12 +13,12 @@
         "VpcCIDR" : {
             "Description" : "Please enter the IP range (CIDR notation) for this VPC",
             "Type" : "String",
-            "Default" : "10.0.0.0/16"
+            "Default" : "172.0.0.0/16"
         },
         "PublicSubnetCIDR" : {
             "Description" : "Please enter the IP range (CIDR notation) for the public subnet in the Availability Zone",
             "Type" : "String",
-            "Default" : "10.0.0.0/24"
+            "Default" : "172.0.0.0/24"
         }
     },
     "Resources" : {
@@ -85,6 +80,7 @@
                 "VpcId" : {
                     "Ref" : "VPC"
                 },
+                "AvailabilityZone" : "us-west-2a",
                 "CidrBlock" : {
                     "Ref" : "PublicSubnetCIDR"
                 },

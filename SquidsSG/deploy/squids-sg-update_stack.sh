@@ -4,5 +4,4 @@ aws cloudformation update-stack \
     --stack-name squids-sg-self-delete \
     --template-body file://squids-sg.json \
     --parameters file://config/squids-vpc-sg-param.json \
-    --timeout-in-minutes 30 \
     --tags Key=Project,Value=Squids

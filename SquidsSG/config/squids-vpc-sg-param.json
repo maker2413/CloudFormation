@@ -14,9 +14,6 @@
     }, {
         "ParameterKey" : "EthanIP",
         "ParameterValue" : "0.0.0.0/32"
-    }, {
-        "ParameterKey" : "DustinIP",
-        "ParameterValue" : "0.0.0.0/32"
     }
 ]
 
