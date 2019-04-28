@@ -52,9 +52,16 @@
                             },
                             "Effect" : "Allow",
                             "Sid" : "VisualEditor0"
+                        }, {
+                            "Action" : "route53:ListHostedZones",
+                            "Resource" : "*",
+                            "Effect" : "Allow",
+                            "Sid" : "VisualEditor1"
                         }
                     ]
-                }
+                },
+                "Path" : "/",
+                "Roles" : [ { "Ref" : "SquidsEC2Role" } ]
             }
         },
         "SquidsEC2Policy" : {
