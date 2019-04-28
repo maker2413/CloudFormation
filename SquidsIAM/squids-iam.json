@@ -35,7 +35,7 @@
             }
         },
         "SquidsRoute53Policy" : {
-            "Type" : "AWS::IAM::MangedPolicy",
+            "Type" : "AWS::IAM::ManagedPolicy",
             "Properties" : {
                 "ManagedPolicyName" : "SquidsDNSPolicy",
                 "PolicyDocument" : {
