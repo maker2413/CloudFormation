@@ -43,8 +43,8 @@
                     "Statement" : [
                         {
                             "Action" : [
+                                "route53:ChangeResourceRecordSets",
                                 "route53:GetHostedZone",
-                                "route53:ChangedResourceRecordSets",
                                 "route53:ListResourceRecordSets"
                             ],
                             "Resource" : {
@@ -190,11 +190,12 @@
                             "Effect" : "Allow",
                             "Action" : [
                                 "iam:CreatePolicy",
+                                "iam:CreatePolicyVersion",
+                                "iam:CreateRole",
+                                "iam:DeletePolicyVersion",
                                 "iam:GetRole",
                                 "iam:PassRole",
-                                "iam:CreateRole",
-                                "iam:PutRolePolicy",
-                                "iam:DeletePolicyVersion"
+                                "iam:PutRolePolicy"
                             ],
                             "Resource" : "*"
                         }
