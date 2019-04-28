@@ -56,7 +56,7 @@
                     ]
                 }
             }
-        }
+        },
         "SquidsEC2Policy" : {
             "Type" : "AWS::IAM::ManagedPolicy",
             "Properties" : {
