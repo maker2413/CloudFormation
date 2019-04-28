@@ -1,4 +1,12 @@
 {
+    "Description" : "This template deploys necessary IAM polices and Roles",
+    "Parameters" : {
+        "HostedZone" : {
+            "Description" : "The route53 hosted zone that will be updated by EC2 instances",
+            "Type" : "String",
+            "Default" : ""
+        }
+    }
     "Resources" : {
         "SquidsEC2Role" : {
             "Type" : "AWS::IAM::Role",
@@ -26,6 +34,29 @@
                 "RoleName" : "SquidsEC2Role"
             }
         },
+        "SquidsRoute53Policy" : {
+            "Type" : "AWS::IAM:MangedPolicy",
+            "Properties" : {
+                "ManagedPolicyName" : "SquidsDNSPolicy",
+                "PolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Action" : [
+                                "route53:GetHostedZone",
+                                "route53:ChangedResourceRecordSets",
+                                "route53:ListResourceRecordSets"
+                            ],
+                            "Resource" : {
+                                "Fn::Sub" : "arn:aws:route53:::hostedzone/${HostedZone}"
+                            },
+                            "Effect" : "Allow",
+                            "Sid" : "VisualEditor0"
+                        }
+                    ]
+                }
+            }
+        }
         "SquidsEC2Policy" : {
             "Type" : "AWS::IAM::ManagedPolicy",
             "Properties" : {
