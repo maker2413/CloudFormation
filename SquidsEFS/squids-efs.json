@@ -1,5 +1,5 @@
 {
-    "Description" : "This template deploys necessary security groups to the specified VPC",
+    "Description" : "This template deploys the developer EFS",
     "Parameters" : {
         "EnvironmentName" : {
             "Description" : "An environment name that will be prefixed to resource names",
