@@ -1,19 +1,16 @@
 [
     {
         "ParameterKey" : "EnvironmentName",
-        "ParameterValue" : "SquidsSG"
+        "ParameterValue" : "SquidsEFS"
     }, {
         "ParameterKey" : "VPC",
-        "ParameterValue" : "vpc-05106a4fde5e490b4"
+        "ParameterValue" : ""
     }, {
-        "ParameterKey" : "PullFromVPC",
-        "ParameterValue" : "True"
+        "ParameterKey" : "PublicSubnet",
+        "ParameterValue" : ""
     }, {
-        "ParameterKey" : "VPCStackNameParameter",
-        "ParameterValue" : "SquidsVPC"
-    }, {
-        "ParameterKey" : "EthanIP",
-        "ParameterValue" : "0.0.0.0/32"
+        "ParameterKey" : "SecurityGroup",
+        "ParameterValue" : ""
     }
 ]
 
