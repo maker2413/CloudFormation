@@ -26,10 +26,10 @@
     },
     "Resources" : {
         "SquidsEFS" : {
-            "Type" : "AWS::EFS:FileSystem",
+            "Type" : "AWS::EFS::FileSystem",
             "Properties" : {
                 "PerformanceMode" : "generalPurpose",
-                "FileSystemTage" : [
+                "FileSystemTags" : [
                     {
                         "Key" : "Name",
                         "Value" : {
@@ -45,17 +45,19 @@
             }
         },
         "SquidsEFSMountPoint" : {
-            "Type" : "AWS::EFS:MountTarget",
+            "Type" : "AWS::EFS::MountTarget",
             "Properties" : {
                 "FileSystemId" : {
-                    "Ref" : "EnvironmentName"
+                    "Ref" : "SquidsEFS"
                 },
                 "SubnetId" : {
                     "Ref" : "PublicSubnet"
                 },
-                "SecurityGroups" : {
-                    "Ref" : "SecurityGroup"
-                }
+                "SecurityGroups" : [
+                    {
+                        "Ref" : "SecurityGroup"
+                    }
+                ]
             }
         }
     },

@@ -218,6 +218,7 @@
                             "Action" : [
                                 "cloudformation:ListStacks",
                                 "cloudformation:CreateStack",
+                                "cloudformation:DeleteStack",
                                 "cloudformation:UpdateStack"
                             ],
                             "Resource" : "*"
@@ -323,7 +324,11 @@
                             "Action" : [
                                 "elasticfilesystem:DescribeMountTargets",
                                 "elasticfilesystem:CreateMountTarget",
-                                "elasticfilesystem:DescribeFileSystems"
+                                "elasticfilesystem:CreateFileSystem",
+                                "elasticfilesystem:DescribeFileSystems",
+                                "elasticfilesystem:DeleteMountTarget",
+                                "elasticfilesystem:DeleteFileSystem",
+                                "elasticfilesystem:CreateTags"
                             ],
                             "Resource" : "*"
                         }
