@@ -197,6 +197,7 @@
 			    "Effect" : "Allow",
 			    "Action" : [
                                 "iam:AttachGroupPolicy",
+                                "iam:AttachRolePolicy",
                                 "iam:CreateGroup",
 				"iam:CreatePolicy",
 				"iam:CreatePolicyVersion",
@@ -206,6 +207,7 @@
 				"iam:DeletePolicyVersion",
                                 "iam:DeleteRole",
                                 "iam:DetachGroupPolicy",
+                                "iam:DetachRolePolicy",
 				"iam:GetRole",
 				"iam:PassRole",
 				"iam:PutRolePolicy"
@@ -233,6 +235,28 @@
 				"cloudformation:CreateStack",
 				"cloudformation:DeleteStack",
 				"cloudformation:UpdateStack"
+			    ],
+			    "Resource" : "*"
+			}
+		    ]
+		},
+		"Path" : "/",
+		"Roles" : [ { "Ref" : "SquidsEC2Role" } ],
+		"Groups" : [ { "Ref" : "SquidsDevelopers" } ]
+	    }
+	},
+        "SquidsSecretsPolicy" : {
+	    "Type" : "AWS::IAM::ManagedPolicy",
+	    "Properties" : {
+		"ManagedPolicyName" : "SquidsSecretsPolicy",
+		"PolicyDocument" : {
+		    "Version" : "2012-10-17",
+		    "Statement" : [
+			{
+			    "Sid" : "VisualEditor0",
+			    "Effect" : "Allow",
+			    "Action" : [
+                                "secretsmanager:*"
 			    ],
 			    "Resource" : "*"
 			}
