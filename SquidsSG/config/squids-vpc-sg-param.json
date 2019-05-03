@@ -4,7 +4,7 @@
         "ParameterValue" : "SquidsSG"
     }, {
         "ParameterKey" : "VPC",
-        "ParameterValue" : "vpc-05106a4fde5e490b4"
+        "ParameterValue" : ""
     }, {
         "ParameterKey" : "PullFromVPC",
         "ParameterValue" : "True"
