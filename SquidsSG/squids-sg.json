@@ -37,45 +37,6 @@
         "PullFromVPCCond" : {"Fn::Equals" : [{"Ref" : "PullFromVPC"}, "True"]}
     },
     "Resources" : {
-        "SSHClient" : {
-            "Type" : "AWS::EC2::SecurityGroup",
-            "Properties" : {
-                "GroupDescription" : "Outbound SSH Access",
-                "VpcId" : {
-                    "Fn::If" : [
-                        "PullFromVPCCond", {
-                            "Fn::ImportValue" : {
-                                "Fn::Sub" : "${VPCStackNameParameter}"
-                            }
-                        }, {
-                            "Ref" : "VPC"
-                        }
-                    ]
-                },
-                "SecurityGroupEgress" : [
-                    {
-                        "IpProtocol" : "-1",
-                        "CidrIp" : "0.0.0.0/0",
-                        "Description" : "Outbound Access",
-                        "FromPort" : "-1",
-                        "ToPort" : "-1"
-                    }
-                ],
-                "Tags" : [
-                    {
-                        "Key" : "Project",
-                        "Value" : {
-                            "Ref" : "ProjectTag"
-                        }
-                    }, {
-                        "Key" : "Name",
-                        "Value" : {
-                            "Fn::Sub" : "${EnvironmentName}-SSH-Client"
-                        }
-                    }
-                ]
-            }
-        },
     	"SSHServer" : {
     		"Type" : "AWS::EC2::SecurityGroup",
     		"Properties" : {
@@ -111,10 +72,10 @@
                     }, {
                         "IpProtocol" : "tcp",
                         "SourceSecurityGroupId" : {
-                            "Ref" : "SSHClient"
+                            "Ref" : "SSHServer"
                         },
                         "Description" : {
-                            "Fn::Sub" : "${EnvironmentName}-SSH-Client"
+                            "Fn::Sub" : "${EnvironmentName}-SSH-Server"
                         },
                         "FromPort" : "22",
                         "ToPort" : "22"
@@ -392,12 +353,6 @@
         }
     },
     "Outputs" : {
-        "SSHClient" : {
-            "Description" : "Security Group SSHClient ID",
-            "Value" : {
-                "Ref" : "SSHClient"
-            }
-        },
         "SSHServer" : {
             "Description" : "Security Group SSHServer ID",
             "Value" : {
@@ -405,15 +360,15 @@
             }
         },
         "EFSClient" : {
-            "Description" : "Security Group SSHClient ID",
+            "Description" : "Security Group EFSClient ID",
             "Value" : {
-                "Ref" : "SSHClient"
+                "Ref" : "EFSClient"
             }
         },
-        "EFSClient" : {
-            "Description" : "Security Group SSHClient ID",
+        "EFSServer" : {
+            "Description" : "Security Group EFSServer ID",
             "Value" : {
-                "Ref" : "SSHClient"
+                "Ref" : "EFSServer"
             }
         },
         "WebServer" : {
