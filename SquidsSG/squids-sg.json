@@ -227,45 +227,6 @@
                 ]
             }
         },
-        "JenkinsClient" : {
-            "Type" : "AWS::EC2::SecurityGroup",
-            "Properties" : {
-                "GroupDescription" : "Outbound EFS Access",
-                "VpcId" : {
-                    "Fn::If" : [
-                        "PullFromVPCCond", {
-                            "Fn::ImportValue" : {
-                                "Fn::Sub" : "${VPCStackNameParameter}"
-                            }
-                        }, {
-                            "Ref" : "VPC"
-                        }
-                    ]
-                },
-                "SecurityGroupEgress" : [
-                    {
-                        "IpProtocol" : "-1",
-                        "CidrIp" : "0.0.0.0/0",
-                        "Description" : "Outbound Access",
-                        "FromPort" : "-1",
-                        "ToPort" : "-1"
-                    }
-                ],
-                "Tags" : [
-                    {
-                        "Key" : "Project",
-                        "Value" : {
-                            "Ref" : "ProjectTag"
-                        }
-                    }, {
-                        "Key" : "Name",
-                        "Value" : {
-                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
-                        }
-                    }
-                ]
-            }
-        },
         "JenkinsServer" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
@@ -314,26 +275,6 @@
                         "Description" : "DustinIP",
                         "FromPort" : "8443",
                         "ToPort" : "8443"
-                    }, {
-                        "IpProtocol" : "tcp",
-                        "SourceSecurityGroupId" : {
-                            "Ref" : "JenkinsClient"
-                        },
-                        "Description" : {
-                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
-                        },
-                        "FromPort" : "8080",
-                        "ToPort" : "8080"
-                    }, {
-                        "IpProtocol" : "tcp",
-                        "SourceSecurityGroupId" : {
-                            "Ref" : "JenkinsClient"
-                        },
-                        "Description" : {
-                            "Fn::Sub" : "${EnvironmentName}-Jenkins-Client"
-                        },
-                        "FromPort" : "8443",
-                        "ToPort" : "8443"
                     }
                 ],
                 "Tags": [
@@ -375,12 +316,6 @@
             "Description" : "Security Group WebServer ID",
             "Value" : {
                 "Ref" : "WebServer"
-            }
-        },
-        "JenkinsClient" : {
-            "Description" : "Security Group JenkinsClient ID",
-            "Value" : {
-                "Ref" : "JenkinsClient"
             }
         },
         "JenkinsServer" : {
