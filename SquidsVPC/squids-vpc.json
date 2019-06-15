@@ -100,27 +100,6 @@
                 ]
             }
         },
-        "NatGatewayEIP" : {
-            "Type" : "AWS::EC2::EIP",
-            "DependsOn" : "InternetGatewayAttachment",
-            "Properties" : {
-                "Domain" : "vpc"
-            }
-        },
-        "NatGateway" : {
-            "Type" : "AWS::EC2::NatGateway",
-            "Properties" : {
-                "AllocationId" : {
-                    "Fn::GetAtt" : [
-                        "NatGatewayEIP",
-                        "AllocationId"
-                    ]
-                },
-                "SubnetId" : {
-                    "Ref" : "PublicSubnet"
-                }
-            }
-        },
         "PublicRouteTable" : {
             "Type" : "AWS::EC2::RouteTable",
             "Properties" : {
