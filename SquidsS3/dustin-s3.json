@@ -1,0 +1,130 @@
+{
+    "Description": "Creates a static website using S3 for the Wild Rydes serverless web application workshop",
+    "Parameters": {
+        "BucketName": {
+            "Type": "String",
+            "Description": "The name for the bucket"
+        },
+        "ProjectTag" : {
+            "Type" : "String",
+            "Description" : "The project tag for stack resources",
+            "Default" : "Squids"
+        }
+    },
+    "Resources": {
+        "WebsiteBucket": {
+            "Properties": {
+                "BucketName": {
+                    "Fn::Sub": "www.${BucketName}"
+                },
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html"
+                },
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "www.${BucketName}-Bucket"
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::S3::Bucket"
+        },
+        "TestBucket": {
+            "Properties": {
+                "BucketName": {
+                    "Fn::Sub": "test.${BucketName}"
+                },
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html"
+                },
+                "Tags" : [
+                    {
+                        "Key" : "Project",
+                        "Value" : {
+                            "Ref" : "ProjectTag"
+                        }
+                    }, {
+                        "Key" : "Name",
+                        "Value" : {
+                            "Fn::Sub" : "test.${BucketName}-Bucket"
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::S3::Bucket"
+        },
+        "RedirectBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {
+                    "Ref": "BucketName"
+                },
+                "AccessControl": "BucketOwnerFullControl",
+                "WebsiteConfiguration": {
+                    "RedirectAllRequestsTo": {
+                        "HostName": {"Ref": "WebsiteBucket"}
+                    }
+                }
+            }
+        },
+        "WebsiteBucketPolicy": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "WebsiteBucket"
+                },
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:s3:::${WebsiteBucket}/*"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "TestBucketPolicy": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "TestBucket"
+                },
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:s3:::${TestBucket}/*"
+                            }
+                        }
+                    ]
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        }
+    },
+    "Outputs": {
+        "WebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "WebsiteBucket",
+                    "WebsiteURL"
+                ]
+            }
+        }
+    }
+}
