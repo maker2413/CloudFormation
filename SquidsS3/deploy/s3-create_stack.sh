@@ -7,4 +7,5 @@ aws cloudformation create-stack \
     --template-body file://$WorkDir/$1-s3.json \
     --parameters file://$WorkDir/config/s3-param.json \
     --timeout-in-minutes 30 \
+    --region us-west-2 \
     --tags Key=Project,Value=Squids

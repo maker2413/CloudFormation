@@ -8,4 +8,5 @@ aws cloudformation update-stack \
     --stack-name squids-iam-self-delete \
     --template-body file://$WorkDir/squids-iam.json \
     --parameters file://$WorkDir/config/squids-iam-param.json \
+    --region us-west-2 \
     --tags Key=Project,Value=Squids

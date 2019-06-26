@@ -6,4 +6,5 @@ aws cloudformation update-stack \
     --stack-name squids-vpc-self-delete \
     --template-body file://$WorkDir/squids-vpc.json \
     --parameters file://$WorkDir/config/squids-vpc-param.json \
+    --region us-west-2 \
     --tags Key=Project,Value=Squids

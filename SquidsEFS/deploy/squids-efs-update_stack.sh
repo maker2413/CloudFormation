@@ -6,4 +6,5 @@ aws cloudformation update-stack \
     --stack-name squids-efs-self-delete \
     --template-body file://$WorkDir/squids-efs.json \
     --parameters file://$WorkDir/config/squids-efs-param.json \
+    --region us-west-2 \
     --tags Key=Project,Value=Squids

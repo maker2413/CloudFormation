@@ -7,4 +7,5 @@ aws cloudformation create-stack \
     --template-body file://$WorkDir/squids-vpc.json \
     --parameters file://$WorkDir/config/squids-vpc-param.json \
     --timeout-in-minutes 30 \
+    --region us-west-2 \
     --tags Key=Project,Value=Squids
