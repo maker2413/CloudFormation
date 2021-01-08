@@ -1,0 +1,25 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Terraform Service Account'
+Parameters:
+  UserName:
+    Type: String
+    Default: terraform-service
+Resources:
+  IAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      # ManagedPolicyArns:
+      #   - String
+      # Policies:
+      #   - Policy
+      Tags:
+        - Key: Name
+          Value: !Ref UserName
+        - Key: Mangedby
+          Value: CloudFormation
+        - Key: Module
+          Value: TerraformIAM
+        - Key: Project
+          Value: Squids
+      UserName: !Ref UserName
