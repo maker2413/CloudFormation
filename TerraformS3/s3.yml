@@ -1,0 +1,21 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Terraform Service Bucket'
+Parameters:
+  BucketName:
+    Type: String
+    Default: squids-tf-state
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref BucketName
+        - Key: Mangedby
+          Value: CloudFormation
+        - Key: Module
+          Value: TerraformS3
+        - Key: Project
+          Value: Squids
+      BucketName: !Ref BucketName
