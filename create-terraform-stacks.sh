@@ -1,15 +1,25 @@
 #!/bin/bash -x
 WorkDir=$(git rev-parse --show-toplevel)
 
-aws cloudformation wait create-stack \
+echo 'Creating the IAM Stack'
+aws cloudformation create-stack \
     --capabilities CAPABILITY_NAMED_IAM \
     --stack-name terraform-service-iam \
     --template-body file://$WorkDir/TerraformIAM/iam.yml \
     --timeout-in-minutes 15 \
     --tags Key=Project,Value=Squids
 
-aws cloudformation wait create-stack \
+echo 'Waiting for the IAM Stack to Create'
+aws cloudformation wait stack-create-complete \
+    --stack-name terraform-service-iam
+
+echo 'Creating the S3 Stack'
+aws cloudformation create-stack \
     --stack-name terraform-service-s3 \
     --template-body file://$WorkDir/TerraformS3/s3.yml \
     --timeout-in-minutes 15 \
     --tags Key=Project,Value=Squids
+
+echo 'Waiting for the S3 Stack to Create'
+aws cloudformation wait stack-create-complete \
+    --stack-name terraform-service-s3

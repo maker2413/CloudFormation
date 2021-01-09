@@ -6,6 +6,15 @@ Parameters:
     Type: String
     Default: squids-tf-state
 Resources:
+  # S3Key:
+  #   Type: AWS::KMS::Key
+  #   Properties:
+  #     KeyPolicy:
+  #       Version: 2012-10-17
+  #       Id: key-s3
+  #       Statement:
+  #         - Sid:
+
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:

@@ -1,6 +1,7 @@
 #!/bin/bash -x
 WorkDir=$(git rev-parse --show-toplevel)/TerraformIAM
 
+echo 'Creating IAM Stack'
 aws cloudformation create-stack \
     --capabilities CAPABILITY_NAMED_IAM \
     --stack-name terraform-service-iam \
