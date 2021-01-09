@@ -3,6 +3,6 @@ WorkDir=$(git rev-parse --show-toplevel)/TerraformIAM
 
 aws cloudformation update-stack \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name terraform-iam \
+    --stack-name terraform-service-iam \
     --template-body file://$WorkDir/iam.yml \
     --tags Key=Project,Value=Squids
