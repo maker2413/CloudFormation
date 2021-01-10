@@ -5,19 +5,53 @@ Parameters:
   BucketName:
     Type: String
     Default: squids-tf-state
+  UserName:
+    Type: String
+    Default: terraform-service
 Resources:
-  # S3Key:
-  #   Type: AWS::KMS::Key
-  #   Properties:
-  #     KeyPolicy:
-  #       Version: 2012-10-17
-  #       Id: key-s3
-  #       Statement:
-  #         - Sid:
+  S3Key:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              AWS: !Join
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':user/'
+                  - !Ref UserName
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey*'
+              - 'kms:DescribeKey'
+            Resource: '*'
+
+  S3KeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/terraform-s3
+      TargetKeyId:
+        Ref: S3Key
 
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${S3KeyAlias}'
+              SSEAlgorithm: 'aws:kms'
       Tags:
         - Key: Name
           Value: !Ref BucketName
@@ -28,3 +62,13 @@ Resources:
         - Key: Project
           Value: Squids
       BucketName: !Ref BucketName
+
+Outputs:
+  S3KeyAlias:
+    Description: 'S3 KMS Key Alias'
+    Value:
+      Ref: 'S3KeyAlias'
+  S3Bucket:
+    Description: 'Encrypted S3 Bucket'
+    Value:
+      Ref: 'S3Bucket'
