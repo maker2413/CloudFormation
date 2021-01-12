@@ -1,25 +1,106 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Terraform Service Account'
+Description: 'Terraform Service Account User Group and Role'
 Parameters:
+  AccountPolicyName:
+    Type: String
+    Default: tf-service-policy
+  GroupName:
+    Type: String
+    Default: service-accounts
+  GroupPolicyName:
+    Type: String
+    Default: service-accounts-policy
   UserName:
     Type: String
-    Default: terraform-service
+    Default: tf-service
 Resources:
-  IAMUser:
+  ServiceGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName:
+        Ref: GroupName
+
+  ServiceGroupPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Groups:
+        - !Ref ServiceGroup
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - s3:ListBucket
+            Resource: "arn:aws:s3:::*"
+          - Effect: "Allow"
+            Action:
+              - s3:DeleteObject
+              - s3:GetObject
+              - s3:PutObject
+            Resource: "arn:aws:s3:::*/*"
+      PolicyName:
+        Ref: GroupPolicyName
+
+  ServiceAccount:
     Type: AWS::IAM::User
     Properties:
-      # ManagedPolicyArns:
-      #   - String
-      # Policies:
-      #   - Policy
+      Groups:
+        - !Ref ServiceGroup
+      Path: "/"
+      UserName:
+        Ref: UserName
       Tags:
-        - Key: Name
-          Value: !Ref UserName
         - Key: Mangedby
           Value: CloudFormation
         - Key: Module
           Value: TerraformIAM
         - Key: Project
           Value: Squids
-      UserName: !Ref UserName
+      UserName:
+        Ref: UserName
+
+  ServiceAccountAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref ServiceAccount
+
+  ServiceAccountPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:AttachUserPolicy
+              - iam:CreatePolicy
+              - iam:DeletePolicy
+              - iam:DeleteUserPolicy
+              - iam:DetachUserPolicy
+              - iam:PutUserPolicy
+            Resource:
+              - !Sub "arn:aws:iam::${AWS::AccountId}:policy/*"
+              - !Sub "arn:aws:iam::${AWS::AccountId}:user/*"
+      PolicyName:
+        Ref: AccountPolicyName
+      Users:
+        - !Ref ServiceAccount
+
+Outputs:
+  UserName:
+    Description: The name of the IAM Group created by this stack
+    Value:
+      Ref: ServiceAccount
+
+  UserARN:
+    Description: The ARN associated with the IAM User Account
+    Value: !GetAtt ServiceAccount.Arn
+
+  AccessKeyId:
+    Description: The Access Key Id for Service Account
+    Value: !Ref ServiceAccountAccessKey
+
+  SecretKeyId:
+    Description: Shhh its a secret
+    Value: !GetAtt ServiceAccountAccessKey.SecretAccessKey

@@ -7,7 +7,7 @@ Parameters:
     Default: squids-tf-state
   UserName:
     Type: String
-    Default: terraform-service
+    Default: tf-service
 Resources:
   S3Key:
     Type: AWS::KMS::Key
@@ -40,7 +40,7 @@ Resources:
   S3KeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: alias/terraform-s3
+      AliasName: alias/tf-s3
       TargetKeyId:
         Ref: S3Key
 
@@ -54,14 +54,16 @@ Resources:
               SSEAlgorithm: 'aws:kms'
       Tags:
         - Key: Name
-          Value: !Ref BucketName
+          Value:
+            Ref: BucketName
         - Key: Mangedby
           Value: CloudFormation
         - Key: Module
           Value: TerraformS3
         - Key: Project
           Value: Squids
-      BucketName: !Ref BucketName
+      BucketName:
+        Ref: BucketName
 
 Outputs:
   S3KeyAlias:
