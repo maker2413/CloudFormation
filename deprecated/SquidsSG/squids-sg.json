@@ -37,11 +37,11 @@
         "PullFromVPCCond" : {"Fn::Equals" : [{"Ref" : "PullFromVPC"}, "True"]}
     },
     "Resources" : {
-    	"SSHServer" : {
-    		"Type" : "AWS::EC2::SecurityGroup",
-    		"Properties" : {
+        "SSHServer" : {
+                "Type" : "AWS::EC2::SecurityGroup",
+                "Properties" : {
                 "GroupDescription" : "Inbound SSH Access",
-    			"VpcId" : {
+                        "VpcId" : {
                     "Fn::If" : [
                         "PullFromVPCCond", {
                             "Fn::ImportValue" : {
@@ -94,7 +94,7 @@
                         }
                     }
                 ]
-    		}
+                }
         },
         "EFSClient" : {
             "Type" : "AWS::EC2::SecurityGroup",
@@ -136,10 +136,10 @@
             }
         },
         "EFSServer" : {
-    		"Type" : "AWS::EC2::SecurityGroup",
-    		"Properties" : {
+                "Type" : "AWS::EC2::SecurityGroup",
+                "Properties" : {
                 "GroupDescription" : "Inbound EFS Access",
-    			"VpcId" : {
+                        "VpcId" : {
                     "Fn::If" : [
                         "PullFromVPCCond", {
                             "Fn::ImportValue" : {
@@ -176,8 +176,8 @@
                         }
                     }
                 ]
-    		}
-    	},
+                }
+        },
         "WebServer" : {
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
