@@ -13,6 +13,8 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+      BucketName:
+        Ref: BucketName
       PublicAccessBlockConfiguration:
         BlockPublicAcls: True
         BlockPublicPolicy: True
@@ -28,8 +30,8 @@ Resources:
           Value: TerraformS3
         - Key: Project
           Value: Squids
-      BucketName:
-        Ref: BucketName
+      VersioningConfiguration:
+        Status: Enabled
 
 Outputs:
   S3Bucket:

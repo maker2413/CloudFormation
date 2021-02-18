@@ -52,8 +52,6 @@ Resources:
       Groups:
         - !Ref ServiceGroup
       Path: "/"
-      UserName:
-        Ref: UserName
       Tags:
         - Key: Mangedby
           Value: CloudFormation
