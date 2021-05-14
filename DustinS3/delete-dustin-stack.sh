@@ -3,4 +3,4 @@ WorkDir=$(git rev-parse --show-toplevel)/DustinS3
 
 echo 'Deleting S3 Stack'
 aws cloudformation delete-stack \
-    --stack-name terraform-service-s3 \
+    --stack-name dustin-s3 \
