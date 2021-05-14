@@ -1,5 +1,5 @@
 #!/bin/bash -x
-WorkDir=$(git rev-parse --show-toplevel)/TerraformS3
+WorkDir=$(git rev-parse --show-toplevel)/DustinS3
 
 echo 'Creating S3 Stack'
 aws cloudformation create-stack \
