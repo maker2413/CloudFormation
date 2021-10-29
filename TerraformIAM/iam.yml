@@ -75,6 +75,7 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
+              - acm:DescribeCertificate
               - iam:AttachUserPolicy
               - iam:CreatePolicy
               - iam:DeletePolicy
