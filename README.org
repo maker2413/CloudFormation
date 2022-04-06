@@ -1,0 +1,14 @@
+#+TITLE: CloudFormation Templates
+
+*Archived Repo*
+This repo is no longer used and is left around only for reference. Please look
+to [[https://www.github.com/maker2413/SquidsAWS][SquidsAWS]] for a better look at how I am managing my AWS infrastructure now.
+
+These are the CloudFormation Templates I have made for my AWS
+Environment. Currently these templates just stand up a bucket and a user for use
+with my Terraform repo. Previously it was used for other various aspects of my
+AWS environment and all of these templates have been moved to the deprecated
+directory.
+
+~pyenv install 3.9.1~
+~pyenv virtualenv 3.9.1 cloudformation~
